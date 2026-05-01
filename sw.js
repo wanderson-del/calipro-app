@@ -1,9 +1,10 @@
-const CACHE_NAME = 'cali-pro-v1';
+const CACHE_NAME = 'cali-pro-v2'; // Mudei para v2 para forçar o celular a atualizar
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icone.png'
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', e => {
