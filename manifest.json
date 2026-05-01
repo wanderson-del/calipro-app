@@ -1,0 +1,17 @@
+{
+  "name": "Cali PRO+ Supremo",
+  "short_name": "CaliPRO+",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b1220",
+  "theme_color": "#22c55e",
+  "description": "Treino de calistenia com progressão inteligente e perfil.",
+  "icons": [
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
