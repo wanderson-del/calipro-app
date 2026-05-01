@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cali-pro-v2'; // Mudei para v2 para forçar o celular a atualizar
+const CACHE_NAME = 'calipro-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -8,8 +8,19 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', e => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then(c => c.addAll(ASSETS))
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+      );
+    })
   );
 });
 
