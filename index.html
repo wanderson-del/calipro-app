@@ -9,18 +9,22 @@
   <style>
     :root { --bg: #0b1220; --card: #161f35; --accent: #22c55e; --text: #fff; --muted: #94a3b8; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-    header { padding: 15px; background: #0f172a; border-bottom: 1px solid #1e293b; text-align: center; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+    header { padding: 15px; background: #0f172a; border-bottom: 1px solid #1e293b; text-align: center; position: sticky; top: 0; z-index: 100; }
     .container { flex: 1; padding: 20px 15px 100px; }
     .page { display: none; }
-    .page.active { display: block; }
-    .card { background: #161f35; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #1e293b; }
+    .page.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .card { background: #161f35; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.2); }
     .btn { border: none; border-radius: 10px; padding: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
     .btn-primary { background: var(--accent); color: #064e3b; }
-    nav { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; height: 70px; border-top: 1px solid #1e293b; }
-    nav button { flex: 1; background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    nav button.active { color: var(--accent); }
-    input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #fff; margin-bottom: 10px; }
+    .btn-secondary { background: #1e293b; color: #fff; }
+    nav { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; height: 75px; border-top: 1px solid #1e293b; z-index: 1000; }
+    nav button { flex: 1; background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; }
+    nav button span { font-size: 20px; margin-bottom: 4px; }
+    nav button.active { color: var(--accent); font-weight: bold; }
+    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #fff; margin-bottom: 15px; font-size: 16px; }
+    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -30,17 +34,20 @@
 <div class="container">
   <div id="p-treino" class="page active">
     <div class="card" id="setup">
-      <h3>Qual o treino de hoje?</h3>
-      <select id="treino-select" style="width:100%; padding:10px; border-radius:8px; background:#0b1220; color:white;">
-        <option value="A">Treino A (Empurrar/Perna)</option>
-        <option value="B">Treino B (Puxar/Core)</option>
+      <h3>Bora para o Treino?</h3>
+      <label>Selecione o treino do dia:</label>
+      <select id="treino-tipo">
+        <option value="A">Treino A (Empurrar / Perna)</option>
+        <option value="B">Treino B (Puxar / Core)</option>
       </select>
-      <button class="btn btn-primary" onclick="startW()">COMEÇAR</button>
+      <button class="btn btn-primary" onclick="iniciarTreino()">INICIAR AGORA</button>
     </div>
+
     <div class="card" id="workout" style="display:none;">
-      <h2 id="ex-nome">---</h2>
-      <p id="ex-reps" style="font-size:24px; color:var(--accent);">---</p>
-      <button class="btn btn-primary" onclick="nextW()">CONCLUÍDO</button>
+      <h2 id="ex-nome" style="margin-top:0;">---</h2>
+      <div id="ex-reps" style="font-size:32px; color:var(--accent); font-weight:900; margin: 20px 0;">---</div>
+      <button class="btn btn-primary" onclick="proximoEx()">CONCLUÍDO</button>
+      <button class="btn btn-secondary" onclick="pararTreino()">PARAR</button>
     </div>
   </div>
 
@@ -48,81 +55,109 @@
     <div class="card">
       <h3>Meu Perfil</h3>
       <label>Nome:</label>
-      <input type="text" id="u-name">
-      <label>Peso (kg):</label>
-      <input type="number" id="u-weight">
+      <input type="text" id="u-nome" placeholder="Seu nome">
+      <label>Peso Atual (kg):</label>
+      <input type="number" step="0.1" id="u-peso" placeholder="Ex: 61.8">
       <label>Altura (cm):</label>
-      <input type="number" id="u-height">
-      <button class="btn btn-primary" onclick="saveP()">SALVAR PERFIL</button>
+      <input type="number" id="u-altura" placeholder="Ex: 175">
+      <button class="btn btn-primary" onclick="salvarPerfil()">SALVAR DADOS</button>
+    </div>
+    <div class="card" id="status-card" style="display:none; text-align:center;">
+      <p id="info-resumo"></p>
     </div>
   </div>
 </div>
 
 <nav>
-  <button onclick="tab('treino')" id="t-treino" class="active"><span>💪</span>Treino</button>
-  <button onclick="tab('perfil')" id="t-perfil"><span>👤</span>Perfil</button>
+  <button onclick="tab('treino')" id="tab-treino" class="active"><span>💪</span>Treino</button>
+  <button onclick="tab('perfil')" id="tab-perfil"><span>👤</span>Perfil</button>
 </nav>
 
 <script>
-  // SEUS TREINOS A E B ORGANIZADOS
   const TREINOS = {
     'A': [
       {n: 'Flexão de Braço', r: '3x12'},
       {n: 'Agachamento', r: '3x15'},
-      {n: 'Mergulho no Banco', r: '3x10'}
+      {n: 'Mergulho (Dips)', r: '3x10'},
+      {n: 'Panturrilha', r: '3x20'}
     ],
     'B': [
       {n: 'Barra Fixa (ou Australiana)', r: '3x8'},
-      {n: 'Prancha Abdominal', r: '3x45s'},
-      {n: 'Elevação de Pernas', r: '3x12'}
+      {n: 'Prancha', r: '3x45s'},
+      {n: 'Elevação de Pernas', r: '3x12'},
+      {n: 'Remada Curvada (se tiver carga)', r: '3x12'}
     ]
   };
 
-  let atual = [], idx = 0;
+  let exerciciosAtuais = [], indiceAtivo = 0;
 
   function tab(p) {
     document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('p-'+p).classList.add('active');
-    document.getElementById('t-'+p).classList.add('active');
+    document.getElementById('p-' + p).classList.add('active');
+    document.getElementById('tab-' + p).classList.add('active');
   }
 
-  function startW() {
-    atual = TREINOS[document.getElementById('treino-select').value];
-    idx = 0;
+  function iniciarTreino() {
+    const tipo = document.getElementById('treino-tipo').value;
+    exerciciosAtuais = TREINOS[tipo];
+    indiceAtivo = 0;
     document.getElementById('setup').style.display = 'none';
     document.getElementById('workout').style.display = 'block';
-    showEx();
+    mostrarExercicio();
   }
 
-  function showEx() {
-    document.getElementById('ex-nome').innerText = atual[idx].n;
-    document.getElementById('ex-reps').innerText = atual[idx].r;
+  function mostrarExercicio() {
+    document.getElementById('ex-nome').innerText = exerciciosAtuais[indiceAtivo].n;
+    document.getElementById('ex-reps').innerText = exerciciosAtuais[indiceAtivo].r;
   }
 
-  function nextW() {
-    if(idx < atual.length - 1) { idx++; showEx(); }
-    else { alert("Treino Finalizado!"); resetW(); }
+  function proximoEx() {
+    if (indiceAtivo < exerciciosAtuais.length - 1) {
+      indiceAtivo++;
+      mostrarExercicio();
+    } else {
+      alert("🏆 Treino Finalizado com sucesso!");
+      pararTreino();
+    }
   }
 
-  function resetW() {
+  function pararTreino() {
     document.getElementById('setup').style.display = 'block';
     document.getElementById('workout').style.display = 'none';
   }
 
-  function saveP() {
-    localStorage.setItem('cali_nome', document.getElementById('u-name').value);
-    localStorage.setItem('cali_peso', document.getElementById('u-weight').value);
-    localStorage.setItem('cali_alt', document.getElementById('u-height').value);
-    alert("Perfil atualizado!");
+  function salvarPerfil() {
+    const n = document.getElementById('u-nome').value;
+    const p = document.getElementById('u-peso').value;
+    const a = document.getElementById('u-altura').value;
+    
+    localStorage.setItem('cali_nome', n);
+    localStorage.setItem('cali_peso', p);
+    localStorage.setItem('cali_alt', a);
+    
+    alert("Perfil Salvo!");
+    carregarPerfil();
   }
 
-  window.onload = () => {
-    document.getElementById('u-name').value = localStorage.getItem('cali_nome') || "";
-    document.getElementById('u-weight').value = localStorage.getItem('cali_peso') || "";
-    document.getElementById('u-height').value = localStorage.getItem('cali_alt') || "";
-  };
+  function carregarPerfil() {
+    const nome = localStorage.getItem('cali_nome') || "";
+    const peso = localStorage.getItem('cali_peso') || "";
+    const alt = localStorage.getItem('cali_alt') || "";
+
+    document.getElementById('u-nome').value = nome;
+    document.getElementById('u-peso').value = peso;
+    document.getElementById('u-altura').value = alt;
+
+    if(nome && peso) {
+      document.getElementById('status-card').style.display = 'block';
+      document.getElementById('info-resumo').innerHTML = `<b>${nome}</b>, foco total nos <b>${peso}kg</b>! 💪`;
+    }
+  }
+
+  window.onload = carregarPerfil;
 </script>
+
 </body>
         </html>
   
