@@ -2,70 +2,74 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#22c55e">
-  <title>Cali PRO+ Supremo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CaliPRO+ Supremo</title>
   <style>
     :root { --bg: #0b1220; --card: #161f35; --accent: #22c55e; --text: #fff; --muted: #94a3b8; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-    header { padding: 15px; background: #0f172a; border-bottom: 1px solid #1e293b; text-align: center; position: sticky; top: 0; z-index: 100; }
-    .container { flex: 1; padding: 20px 15px 100px; }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+    header { padding: 15px; background: #0f172a; border-bottom: 1px solid #1e293b; text-align: center; }
+    .container { flex: 1; padding: 20px 15px 100px; max-width: 500px; margin: 0 auto; width: 100%; }
     .page { display: none; }
-    .page.active { display: block; animation: fadeIn 0.3s ease; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .card { background: #161f35; padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.2); }
-    .btn { border: none; border-radius: 10px; padding: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+    .page.active { display: block; }
+    .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.2); }
+    .btn { border: none; border-radius: 10px; padding: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
     .btn-primary { background: var(--accent); color: #064e3b; }
-    .btn-secondary { background: #1e293b; color: #fff; }
-    nav { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; height: 75px; border-top: 1px solid #1e293b; z-index: 1000; }
+    .btn-outline { background: #1e293b; color: white; border: 1px solid #334155; }
+    .btn-outline.active { background: var(--accent); color: #064e3b; border-color: var(--accent); }
+    nav { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; height: 75px; border-top: 1px solid #1e293b; }
     nav button { flex: 1; background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; }
-    nav button span { font-size: 20px; margin-bottom: 4px; }
     nav button.active { color: var(--accent); font-weight: bold; }
-    input, select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #fff; margin-bottom: 15px; font-size: 16px; }
-    label { font-size: 12px; color: var(--muted); display: block; margin-bottom: 5px; }
+    input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #fff; margin-bottom: 10px; }
+    .ex-item { display: flex; align-items: center; padding: 15px; background: #0b1220; border-radius: 10px; margin-bottom: 8px; border: 1px solid #1e293b; }
+    .ex-item input { width: auto; margin-right: 15px; transform: scale(1.4); margin-bottom: 0; }
   </style>
 </head>
 <body>
 
-<header><h1 style="margin:0; font-size:18px; color:var(--accent);">CALI PRO+</h1></header>
+<header><h1 style="margin:0; font-size:20px; color:var(--accent);">CaliPRO+ 💪</h1></header>
 
 <div class="container">
+  
   <div id="p-treino" class="page active">
-    <div class="card" id="setup">
-      <h3>Bora para o Treino?</h3>
-      <label>Selecione o treino do dia:</label>
-      <select id="treino-tipo">
-        <option value="A">Treino A (Empurrar / Perna)</option>
-        <option value="B">Treino B (Puxar / Core)</option>
-      </select>
-      <button class="btn btn-primary" onclick="iniciarTreino()">INICIAR AGORA</button>
+    <div class="card" id="area-setup">
+      <h3>1. Escolha seu Nível</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+        <button onclick="setNivel('iniciante')" id="n-iniciante" class="btn btn-outline">Inic.</button>
+        <button onclick="setNivel('intermediario')" id="n-intermediario" class="btn btn-outline">Inter.</button>
+        <button onclick="setNivel('avancado')" id="n-avancado" class="btn btn-outline">Avan.</button>
+      </div>
+      
+      <h3 style="margin-top:25px;">2. O que vamos treinar?</h3>
+      <button class="btn btn-primary" onclick="carregarTreino('push')">PUSH (Empurrar)</button>
+      <button class="btn btn-primary" onclick="carregarTreino('pull')">PULL (Puxar)</button>
+      <button class="btn btn-primary" onclick="carregarTreino('legs')">LEGS (Pernas)</button>
     </div>
 
-    <div class="card" id="workout" style="display:none;">
-      <h2 id="ex-nome" style="margin-top:0;">---</h2>
-      <div id="ex-reps" style="font-size:32px; color:var(--accent); font-weight:900; margin: 20px 0;">---</div>
-      <button class="btn btn-primary" onclick="proximoEx()">CONCLUÍDO</button>
-      <button class="btn btn-secondary" onclick="pararTreino()">PARAR</button>
+    <div id="area-exercicios" style="display:none;">
+      <div class="card">
+        <h2 id="titulo-treino" style="margin-top:0; color:var(--accent);">---</h2>
+        <div id="lista-treino"></div>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="finalizarTreino()">FINALIZAR TREINO</button>
+        <button class="btn btn-outline" onclick="cancelarTreino()">VOLTAR</button>
+      </div>
     </div>
   </div>
 
   <div id="p-perfil" class="page">
     <div class="card">
       <h3>Meu Perfil</h3>
-      <label>Nome:</label>
+      <label style="font-size:12px; color:var(--muted);">Nome:</label>
       <input type="text" id="u-nome" placeholder="Seu nome">
-      <label>Peso Atual (kg):</label>
-      <input type="number" step="0.1" id="u-peso" placeholder="Ex: 61.8">
-      <label>Altura (cm):</label>
-      <input type="number" id="u-altura" placeholder="Ex: 175">
+      <label style="font-size:12px; color:var(--muted);">Peso Atual (kg):</label>
+      <input type="number" step="0.01" id="u-peso" placeholder="Ex: 61.80">
       <button class="btn btn-primary" onclick="salvarPerfil()">SALVAR DADOS</button>
     </div>
-    <div class="card" id="status-card" style="display:none; text-align:center;">
-      <p id="info-resumo"></p>
+    <div id="resumo-perfil" class="card" style="text-align:center; display:none;">
+      <p id="msg-perfil"></p>
     </div>
   </div>
+
 </div>
 
 <nav>
@@ -74,90 +78,100 @@
 </nav>
 
 <script>
+  // BANCO DE DADOS DOS TREINOS
   const TREINOS = {
-    'A': [
-      {n: 'Flexão de Braço', r: '3x12'},
-      {n: 'Agachamento', r: '3x15'},
-      {n: 'Mergulho (Dips)', r: '3x10'},
-      {n: 'Panturrilha', r: '3x20'}
-    ],
-    'B': [
-      {n: 'Barra Fixa (ou Australiana)', r: '3x8'},
-      {n: 'Prancha', r: '3x45s'},
-      {n: 'Elevação de Pernas', r: '3x12'},
-      {n: 'Remada Curvada (se tiver carga)', r: '3x12'}
-    ]
+    iniciante: {
+      push: [{ n: "Flexão Inclinada", r: "3x8-12" }, { n: "Flexão de Joelho", r: "3x8-12" }],
+      pull: [{ n: "Remada Australiana", r: "3x8-12" }],
+      legs: [{ n: "Agachamento Livre", r: "3x10-15" }]
+    },
+    intermediario: {
+      push: [{ n: "Flexão Normal", r: "3x10-15" }, { n: "Mergulho (Dips)", r: "3x8-12" }],
+      pull: [{ n: "Remada Australiana Baixa", r: "3x10-15" }, { n: "Isometria na Barra", r: "3x20s" }],
+      legs: [{ n: "Afundo", r: "3x10 cada perna" }, { n: "Panturrilha", r: "3x20" }]
+    },
+    avancado: {
+      push: [{ n: "Flexão Declinada", r: "3x8-12" }, { n: "Flexão Diamante", r: "3x8-12" }],
+      pull: [{ n: "Barra Fixa", r: "3x6-10" }],
+      legs: [{ n: "Pistol Squat", r: "3x5-8 cada perna" }]
+    }
   };
 
-  let exerciciosAtuais = [], indiceAtivo = 0;
+  let nivelAtual = localStorage.getItem('calipro_nivel') || 'iniciante';
 
-  function tab(p) {
-    document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+  function tab(nome) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('p-' + p).classList.add('active');
-    document.getElementById('tab-' + p).classList.add('active');
+    document.getElementById('p-' + nome).classList.add('active');
+    document.getElementById('tab-' + nome).classList.add('active');
   }
 
-  function iniciarTreino() {
-    const tipo = document.getElementById('treino-tipo').value;
-    exerciciosAtuais = TREINOS[tipo];
-    indiceAtivo = 0;
-    document.getElementById('setup').style.display = 'none';
-    document.getElementById('workout').style.display = 'block';
-    mostrarExercicio();
+  function setNivel(nivel) {
+    nivelAtual = nivel;
+    localStorage.setItem('calipro_nivel', nivel);
+    document.querySelectorAll('#area-setup .btn-outline').forEach(b => b.classList.remove('active'));
+    document.getElementById('n-' + nivel).classList.add('active');
   }
 
-  function mostrarExercicio() {
-    document.getElementById('ex-nome').innerText = exerciciosAtuais[indiceAtivo].n;
-    document.getElementById('ex-reps').innerText = exerciciosAtuais[indiceAtivo].r;
+  function carregarTreino(tipo) {
+    const lista = TREINOS[nivelAtual][tipo];
+    const container = document.getElementById('lista-treino');
+    document.getElementById('titulo-treino').innerText = tipo.toUpperCase();
+    
+    let html = "";
+    lista.forEach((ex, i) => {
+      html += `
+        <div class="ex-item">
+          <input type="checkbox" id="check-${i}">
+          <div>
+            <strong>${ex.n}</strong><br>
+            <small style="color:var(--muted)">${ex.r}</small>
+          </div>
+        </div>
+      `;
+    });
+    
+    container.innerHTML = html;
+    document.getElementById('area-setup').style.display = 'none';
+    document.getElementById('area-exercicios').style.display = 'block';
   }
 
-  function proximoEx() {
-    if (indiceAtivo < exerciciosAtuais.length - 1) {
-      indiceAtivo++;
-      mostrarExercicio();
-    } else {
-      alert("🏆 Treino Finalizado com sucesso!");
-      pararTreino();
-    }
+  function finalizarTreino() {
+    alert("💪 Treino concluído! Mantém o foco!");
+    cancelarTreino();
   }
 
-  function pararTreino() {
-    document.getElementById('setup').style.display = 'block';
-    document.getElementById('workout').style.display = 'none';
+  function cancelarTreino() {
+    document.getElementById('area-setup').style.display = 'block';
+    document.getElementById('area-exercicios').style.display = 'none';
   }
 
   function salvarPerfil() {
-    const n = document.getElementById('u-nome').value;
-    const p = document.getElementById('u-peso').value;
-    const a = document.getElementById('u-altura').value;
-    
-    localStorage.setItem('cali_nome', n);
-    localStorage.setItem('cali_peso', p);
-    localStorage.setItem('cali_alt', a);
-    
-    alert("Perfil Salvo!");
-    carregarPerfil();
+    const nome = document.getElementById('u-nome').value;
+    const peso = document.getElementById('u-peso').value;
+    localStorage.setItem('calipro_nome', nome);
+    localStorage.setItem('calipro_peso', peso);
+    alert("Perfil guardado!");
+    mostrarResumo();
   }
 
-  function carregarPerfil() {
-    const nome = localStorage.getItem('cali_nome') || "";
-    const peso = localStorage.getItem('cali_peso') || "";
-    const alt = localStorage.getItem('cali_alt') || "";
-
-    document.getElementById('u-nome').value = nome;
-    document.getElementById('u-peso').value = peso;
-    document.getElementById('u-altura').value = alt;
-
+  function mostrarResumo() {
+    const nome = localStorage.getItem('calipro_nome');
+    const peso = localStorage.getItem('calipro_peso');
     if(nome && peso) {
-      document.getElementById('status-card').style.display = 'block';
-      document.getElementById('info-resumo').innerHTML = `<b>${nome}</b>, foco total nos <b>${peso}kg</b>! 💪`;
+      document.getElementById('resumo-perfil').style.display = 'block';
+      document.getElementById('msg-perfil').innerHTML = `Boas, <b>${nome}</b>! Foco total nos teus <b>${peso}kg</b>.`;
     }
   }
 
-  window.onload = carregarPerfil;
+  // Carregar dados ao abrir
+  window.onload = () => {
+    setNivel(nivelAtual);
+    document.getElementById('u-nome').value = localStorage.getItem('calipro_nome') || "";
+    document.getElementById('u-peso').value = localStorage.getItem('calipro_peso') || "61.80";
+    mostrarResumo();
+  };
 </script>
 
 </body>
-        </html>
-  
+</html>
