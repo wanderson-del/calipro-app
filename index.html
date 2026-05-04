@@ -1,98 +1,61 @@
-<!-- ===================== CALIPRO VICIANTE FINAL ===================== --><!DOCTYPE html><html lang="pt-BR">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CaliPRO</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Treino Monstro</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body><div class="container" id="app"></div><div class="nav">
-  <button onclick="nav('home')">Início</button>
-  <button onclick="nav('treino')">Treino</button>
-  <button onclick="nav('progresso')">Progresso</button>
-</div><script>
-let tela = 'home';
+<body>
 
-function nav(t){ tela = t; render(); }
+<div class="container">
 
-function render(){
-  const app = document.getElementById('app');
-
-  let xp = parseInt(localStorage.getItem("xp") || 0);
-  let nivel = Math.floor(xp / 50);
-  let streak = localStorage.getItem("streak") || 0;
-
-  if(tela === 'home'){
-    app.innerHTML = `
-      <div class='card fade-in'>
-        <h2>🔥 Streak: ${streak} dias</h2>
-        <p>Nível ${nivel}</p>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width:${xp % 50 * 2}%"></div>
-        </div>
-        <button class="primary" onclick="nav('treino')">Treinar agora</button>
+  <!-- HOME -->
+  <div id="home">
+    <h1>🔥 Treino Monstro</h1>
+    
+    <div class="card">
+      <p>Streak: <span id="streak">0</span> dias</p>
+      <p>Nível: <span id="level">1</span></p>
+      <div class="progress-bar">
+        <div id="xpBar"></div>
       </div>
-    `;
-  }
+    </div>
 
-  if(tela === 'treino'){
-    let treino = ["Flexão 3x10","Agachamento 3x12","Prancha 30s x3"];
+    <button onclick="abrirConfig()">Começar Treino</button>
+  </div>
 
-    let html = `<div class='card'><h2>Treino</h2>`;
+  <!-- CONFIG -->
+  <div id="config" class="hidden">
+    <h2>Personalizar Treino</h2>
 
-    treino.forEach(e => {
-      html += `<div class='exercicio'>${e}</div>`;
-    });
+    <select id="objetivo">
+      <option value="forca">Força</option>
+      <option value="emagrecer">Emagrecer</option>
+    </select>
 
-    html += `<button onclick="finalizarTreino()">Finalizar Treino</button></div>`;
+    <select id="nivel">
+      <option value="iniciante">Iniciante</option>
+      <option value="intermediario">Intermediário</option>
+      <option value="avancado">Avançado</option>
+    </select>
 
-    app.innerHTML = html;
-  }
+    <select id="equipamento">
+      <option value="nenhum">Sem equipamento</option>
+      <option value="halter">Halter</option>
+    </select>
 
-  if(tela === 'progresso'){
-    app.innerHTML = `
-      <div class='card'>
-        <h2>Progresso</h2>
-        <p>XP: ${xp}</p>
-        <p>Nível: ${nivel}</p>
-        <p>Streak: ${streak}</p>
-      </div>
-    `;
-  }
-}
+    <button onclick="gerarTreino()">Gerar Treino</button>
+  </div>
 
-function atualizarStreak(){
-  let hoje = new Date().toDateString();
-  let ultimo = localStorage.getItem("ultimoTreino");
-  let streak = parseInt(localStorage.getItem("streak") || 0);
+  <!-- TREINO -->
+  <div id="treino" class="hidden">
+    <h2>Seu Treino</h2>
+    <ul id="listaTreino"></ul>
+    <button onclick="finalizarTreino()">Finalizar</button>
+  </div>
 
-  if(ultimo !== hoje){
-    streak++;
-    localStorage.setItem("streak", streak);
-    localStorage.setItem("ultimoTreino", hoje);
-  }
-}
+</div>
 
-function ganharXP(){
-  let xp = parseInt(localStorage.getItem("xp") || 0);
-  xp += 10;
-  localStorage.setItem("xp", xp);
-}
-
-function checarConquistas(){
-  let streak = parseInt(localStorage.getItem("streak") || 0);
-
-  if(streak === 3) alert("🏆 3 dias seguidos!");
-  if(streak === 7) alert("🔥 7 dias! MONSTRO!");
-}
-
-function finalizarTreino(){
-  atualizarStreak();
-  ganharXP();
-  checarConquistas();
-  alert("Treino concluído +10XP");
-  render();
-}
-
-render();
-</script></body>
+<script src="script.js"></script>
+</body>
 </html>
