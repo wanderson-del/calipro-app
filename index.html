@@ -1,177 +1,98 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+<!-- ===================== CALIPRO VICIANTE FINAL ===================== --><!DOCTYPE html><html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>CaliPRO+ Supremo</title>
-  <style>
-    :root { --bg: #0b1220; --card: #161f35; --accent: #22c55e; --text: #fff; --muted: #94a3b8; }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-    header { padding: 15px; background: #0f172a; border-bottom: 1px solid #1e293b; text-align: center; }
-    .container { flex: 1; padding: 20px 15px 100px; max-width: 500px; margin: 0 auto; width: 100%; }
-    .page { display: none; }
-    .page.active { display: block; }
-    .card { background: var(--card); padding: 20px; border-radius: 15px; margin-bottom: 15px; border: 1px solid rgba(34, 197, 94, 0.2); }
-    .btn { border: none; border-radius: 10px; padding: 15px; width: 100%; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-    .btn-primary { background: var(--accent); color: #064e3b; }
-    .btn-outline { background: #1e293b; color: white; border: 1px solid #334155; }
-    .btn-outline.active { background: var(--accent); color: #064e3b; border-color: var(--accent); }
-    nav { position: fixed; bottom: 0; width: 100%; background: #0f172a; display: flex; height: 75px; border-top: 1px solid #1e293b; }
-    nav button { flex: 1; background: none; border: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; }
-    nav button.active { color: var(--accent); font-weight: bold; }
-    input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #fff; margin-bottom: 10px; }
-    .ex-item { display: flex; align-items: center; padding: 15px; background: #0b1220; border-radius: 10px; margin-bottom: 8px; border: 1px solid #1e293b; }
-    .ex-item input { width: auto; margin-right: 15px; transform: scale(1.4); margin-bottom: 0; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CaliPRO</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body><div class="container" id="app"></div><div class="nav">
+  <button onclick="nav('home')">Início</button>
+  <button onclick="nav('treino')">Treino</button>
+  <button onclick="nav('progresso')">Progresso</button>
+</div><script>
+let tela = 'home';
 
-<header><h1 style="margin:0; font-size:20px; color:var(--accent);">CaliPRO+ 💪</h1></header>
+function nav(t){ tela = t; render(); }
 
-<div class="container">
-  
-  <div id="p-treino" class="page active">
-    <div class="card" id="area-setup">
-      <h3>1. Escolha seu Nível</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-        <button onclick="setNivel('iniciante')" id="n-iniciante" class="btn btn-outline">Inic.</button>
-        <button onclick="setNivel('intermediario')" id="n-intermediario" class="btn btn-outline">Inter.</button>
-        <button onclick="setNivel('avancado')" id="n-avancado" class="btn btn-outline">Avan.</button>
-      </div>
-      
-      <h3 style="margin-top:25px;">2. O que vamos treinar?</h3>
-      <button class="btn btn-primary" onclick="carregarTreino('push')">PUSH (Empurrar)</button>
-      <button class="btn btn-primary" onclick="carregarTreino('pull')">PULL (Puxar)</button>
-      <button class="btn btn-primary" onclick="carregarTreino('legs')">LEGS (Pernas)</button>
-    </div>
+function render(){
+  const app = document.getElementById('app');
 
-    <div id="area-exercicios" style="display:none;">
-      <div class="card">
-        <h2 id="titulo-treino" style="margin-top:0; color:var(--accent);">---</h2>
-        <div id="lista-treino"></div>
-        <button class="btn btn-primary" style="margin-top:20px;" onclick="finalizarTreino()">FINALIZAR TREINO</button>
-        <button class="btn btn-outline" onclick="cancelarTreino()">VOLTAR</button>
-      </div>
-    </div>
-  </div>
+  let xp = parseInt(localStorage.getItem("xp") || 0);
+  let nivel = Math.floor(xp / 50);
+  let streak = localStorage.getItem("streak") || 0;
 
-  <div id="p-perfil" class="page">
-    <div class="card">
-      <h3>Meu Perfil</h3>
-      <label style="font-size:12px; color:var(--muted);">Nome:</label>
-      <input type="text" id="u-nome" placeholder="Seu nome">
-      <label style="font-size:12px; color:var(--muted);">Peso Atual (kg):</label>
-      <input type="number" step="0.01" id="u-peso" placeholder="Ex: 61.80">
-      <button class="btn btn-primary" onclick="salvarPerfil()">SALVAR DADOS</button>
-    </div>
-    <div id="resumo-perfil" class="card" style="text-align:center; display:none;">
-      <p id="msg-perfil"></p>
-    </div>
-  </div>
-
-</div>
-
-<nav>
-  <button onclick="tab('treino')" id="tab-treino" class="active"><span>💪</span>Treino</button>
-  <button onclick="tab('perfil')" id="tab-perfil"><span>👤</span>Perfil</button>
-</nav>
-
-<script>
-  // BANCO DE DADOS DOS TREINOS
-  const TREINOS = {
-    iniciante: {
-      push: [{ n: "Flexão Inclinada", r: "3x8-12" }, { n: "Flexão de Joelho", r: "3x8-12" }],
-      pull: [{ n: "Remada Australiana", r: "3x8-12" }],
-      legs: [{ n: "Agachamento Livre", r: "3x10-15" }]
-    },
-    intermediario: {
-      push: [{ n: "Flexão Normal", r: "3x10-15" }, { n: "Mergulho (Dips)", r: "3x8-12" }],
-      pull: [{ n: "Remada Australiana Baixa", r: "3x10-15" }, { n: "Isometria na Barra", r: "3x20s" }],
-      legs: [{ n: "Afundo", r: "3x10 cada perna" }, { n: "Panturrilha", r: "3x20" }]
-    },
-    avancado: {
-      push: [{ n: "Flexão Declinada", r: "3x8-12" }, { n: "Flexão Diamante", r: "3x8-12" }],
-      pull: [{ n: "Barra Fixa", r: "3x6-10" }],
-      legs: [{ n: "Pistol Squat", r: "3x5-8 cada perna" }]
-    }
-  };
-
-  let nivelAtual = localStorage.getItem('calipro_nivel') || 'iniciante';
-
-  function tab(nome) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('p-' + nome).classList.add('active');
-    document.getElementById('tab-' + nome).classList.add('active');
-  }
-
-  function setNivel(nivel) {
-    nivelAtual = nivel;
-    localStorage.setItem('calipro_nivel', nivel);
-    document.querySelectorAll('#area-setup .btn-outline').forEach(b => b.classList.remove('active'));
-    document.getElementById('n-' + nivel).classList.add('active');
-  }
-
-  function carregarTreino(tipo) {
-    const lista = TREINOS[nivelAtual][tipo];
-    const container = document.getElementById('lista-treino');
-    document.getElementById('titulo-treino').innerText = tipo.toUpperCase();
-    
-    let html = "";
-    lista.forEach((ex, i) => {
-      html += `
-        <div class="ex-item">
-          <input type="checkbox" id="check-${i}">
-          <div>
-            <strong>${ex.n}</strong><br>
-            <small style="color:var(--muted)">${ex.r}</small>
-          </div>
+  if(tela === 'home'){
+    app.innerHTML = `
+      <div class='card fade-in'>
+        <h2>🔥 Streak: ${streak} dias</h2>
+        <p>Nível ${nivel}</p>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${xp % 50 * 2}%"></div>
         </div>
-      `;
+        <button class="primary" onclick="nav('treino')">Treinar agora</button>
+      </div>
+    `;
+  }
+
+  if(tela === 'treino'){
+    let treino = ["Flexão 3x10","Agachamento 3x12","Prancha 30s x3"];
+
+    let html = `<div class='card'><h2>Treino</h2>`;
+
+    treino.forEach(e => {
+      html += `<div class='exercicio'>${e}</div>`;
     });
-    
-    container.innerHTML = html;
-    document.getElementById('area-setup').style.display = 'none';
-    document.getElementById('area-exercicios').style.display = 'block';
+
+    html += `<button onclick="finalizarTreino()">Finalizar Treino</button></div>`;
+
+    app.innerHTML = html;
   }
 
-  function finalizarTreino() {
-    alert("💪 Treino concluído! Mantém o foco!");
-    cancelarTreino();
+  if(tela === 'progresso'){
+    app.innerHTML = `
+      <div class='card'>
+        <h2>Progresso</h2>
+        <p>XP: ${xp}</p>
+        <p>Nível: ${nivel}</p>
+        <p>Streak: ${streak}</p>
+      </div>
+    `;
   }
+}
 
-  function cancelarTreino() {
-    document.getElementById('area-setup').style.display = 'block';
-    document.getElementById('area-exercicios').style.display = 'none';
+function atualizarStreak(){
+  let hoje = new Date().toDateString();
+  let ultimo = localStorage.getItem("ultimoTreino");
+  let streak = parseInt(localStorage.getItem("streak") || 0);
+
+  if(ultimo !== hoje){
+    streak++;
+    localStorage.setItem("streak", streak);
+    localStorage.setItem("ultimoTreino", hoje);
   }
+}
 
-  function salvarPerfil() {
-    const nome = document.getElementById('u-nome').value;
-    const peso = document.getElementById('u-peso').value;
-    localStorage.setItem('calipro_nome', nome);
-    localStorage.setItem('calipro_peso', peso);
-    alert("Perfil guardado!");
-    mostrarResumo();
-  }
+function ganharXP(){
+  let xp = parseInt(localStorage.getItem("xp") || 0);
+  xp += 10;
+  localStorage.setItem("xp", xp);
+}
 
-  function mostrarResumo() {
-    const nome = localStorage.getItem('calipro_nome');
-    const peso = localStorage.getItem('calipro_peso');
-    if(nome && peso) {
-      document.getElementById('resumo-perfil').style.display = 'block';
-      document.getElementById('msg-perfil').innerHTML = `Boas, <b>${nome}</b>! Foco total nos teus <b>${peso}kg</b>.`;
-    }
-  }
+function checarConquistas(){
+  let streak = parseInt(localStorage.getItem("streak") || 0);
 
-  // Carregar dados ao abrir
-  window.onload = () => {
-    setNivel(nivelAtual);
-    document.getElementById('u-nome').value = localStorage.getItem('calipro_nome') || "";
-    document.getElementById('u-peso').value = localStorage.getItem('calipro_peso') || "61.80";
-    mostrarResumo();
-  };
-</script>
+  if(streak === 3) alert("🏆 3 dias seguidos!");
+  if(streak === 7) alert("🔥 7 dias! MONSTRO!");
+}
 
-</body>
+function finalizarTreino(){
+  atualizarStreak();
+  ganharXP();
+  checarConquistas();
+  alert("Treino concluído +10XP");
+  render();
+}
+
+render();
+</script></body>
 </html>
